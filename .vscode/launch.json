@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-YoutubeSchedulerApplication<youtube-scheduler>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.youtubescheduler.YoutubeSchedulerApplication",
+            "projectName": "youtube-scheduler",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

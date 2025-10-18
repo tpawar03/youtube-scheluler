@@ -1,0 +1,14 @@
+package com.example.youtubescheduler.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class TvModeController {
+    @GetMapping("/tvmode")
+    public String tvMode(Model model) {
+        model.addAttribute("videoUrl", "https://www.youtube.com/embed/JARxUNFubto");
+        return "tvmode";
+    }
+}

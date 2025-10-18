@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TV Mode</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="tv-mode">
+
+    <div id="videoContainer" class="video-container">
+        <iframe id="youtubePlayer"
+                th:src="${videoUrl}"
+                allow="autoplay; fullscreen"
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    
+    <button id="settingsBtn" onclick="window.location.href='/schedule'">⚙ Settings</button>
+
+    <script>
+        const container = document.getElementById("videoContainer");
+        const settingsBtn = document.getElementById("settingsBtn");
+
+        
+        window.onload = () => {
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            }
+        };
+
+        
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                container.classList.add("minimized");
+                settingsBtn.style.display = "block";
+            }
+        });
+    </script>
+
+</body>
+</html>
