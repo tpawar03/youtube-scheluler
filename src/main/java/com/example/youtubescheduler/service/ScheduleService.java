@@ -26,4 +26,3 @@ public class ScheduleService {
         repo.delete(id);
     }
 }
-

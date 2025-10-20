@@ -1,7 +1,11 @@
+/* =========================================
+   GLOBAL STYLES
+   ========================================= */
 body {
     font-family: Arial, sans-serif;
     margin: 40px;
     background-color: #fafafa;
+    color: #222;
 }
 
 header {
@@ -11,10 +15,21 @@ header {
     margin-bottom: 30px;
 }
 
+h2, h3 {
+    margin: 0;
+}
+
+/* =========================================
+   TABLE STYLING (Schedule Page)
+   ========================================= */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 th, td {
@@ -23,7 +38,11 @@ th, td {
     text-align: center;
 }
 
-button, a {
+th {
+    background: #f0f0f0;
+}
+
+a, button {
     background: #007bff;
     color: #fff;
     padding: 8px 12px;
@@ -31,24 +50,45 @@ button, a {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.2s ease;
 }
 
-button:hover, a:hover {
+a:hover, button:hover {
     background: #0056b3;
+}
+
+/* =========================================
+   FORM SECTION (Add / Update Form)
+   ========================================= */
+.form-section {
+    background: #f2f2f2;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
 .form-section input {
     margin: 5px;
     padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
+input:focus {
+    outline: none;
+    border-color: #007bff;
+}
 
+/* =========================================
+   TV MODE PAGE
+   ========================================= */
 .tv-mode {
     text-align: center;
     background-color: #000;
     color: white;
     margin: 0;
     padding: 0;
+    overflow: hidden; /* removes scrollbars in fullscreen */
 }
 
 .video-container {
@@ -77,6 +117,9 @@ button:hover, a:hover {
     border-radius: inherit;
 }
 
+/* =========================================
+   SETTINGS BUTTON (⚙)
+   ========================================= */
 #settingsBtn {
     position: fixed;
     top: 15px;
@@ -99,4 +142,45 @@ button:hover, a:hover {
 #settingsBtn.show {
     display: block;
     opacity: 1;
+}
+
+/* =========================================
+   NO VIDEO (Idle Screen)
+   ========================================= */
+.no-video {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    color: #fff;
+    font-size: 1.6rem;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.no-video h2 {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.no-video button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.no-video button:hover {
+    background-color: #0056b3;
+}
+
+/* Subtle fade effect when showing idle screen */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

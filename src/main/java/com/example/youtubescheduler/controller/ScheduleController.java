@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/schedule")
 public class ScheduleController {
+
     private final ScheduleService service;
 
     public ScheduleController(ScheduleService service) {

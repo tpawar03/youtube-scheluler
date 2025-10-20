@@ -1,43 +1,182 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>TV Mode</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+  <meta charset="UTF-8">
+  <title>TV Mode</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body class="tv-mode">
+  <div id="videoContainer" class="video-container">
+    <div id="player"></div>
+  </div>
 
-    <div id="videoContainer" class="video-container">
-        <iframe id="youtubePlayer"
-                th:src="${videoUrl}"
-                allow="autoplay; fullscreen"
-                allowfullscreen>
-        </iframe>
-    </div>
+  <div id="noVideoMessage" class="no-video" style="display:none;">
+    <h2>No video scheduled for now 🎥</h2>
+    <button onclick="window.location.href='/schedule'">Go to Schedule</button>
+  </div>
 
-    
-    <button id="settingsBtn" onclick="window.location.href='/schedule'">⚙ Settings</button>
+  <button id="settingsBtn" onclick="window.location.href='/schedule'">⚙ Settings</button>
 
-    <script>
-        const container = document.getElementById("videoContainer");
-        const settingsBtn = document.getElementById("settingsBtn");
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 
-        
-        window.onload = () => {
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            }
-        };
+  <!-- Pass schedule data -->
+  <script th:inline="javascript">
+    const schedules = /*[[${schedules}]]*/ [];
+  </script>
 
-        
-        document.addEventListener("fullscreenchange", () => {
-            if (!document.fullscreenElement) {
-                container.classList.add("minimized");
-                settingsBtn.style.display = "block";
-            }
-        });
-    </script>
+  <script>
+    let player;
+    let currentIndex = -1;
+    let schedulerInterval;
+    let endTimer = null;
 
+    // Extract YouTube video ID from various URL formats
+    function extractVideoId(url) {
+      try {
+        if (url.includes("embed/")) return url.split("embed/")[1].split("?")[0];
+        if (url.includes("watch?v=")) return url.split("watch?v=")[1].split("&")[0];
+        if (url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
+    // Initialize YouTube Player
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0,
+          fs: 1
+        },
+        events: {
+          onReady: startScheduler
+        }
+      });
+    }
+
+    // Find the current video based on the system time
+    function getCurrentVideoIndex() {
+      const now = new Date();
+      for (let i = schedules.length - 1; i >= 0; i--) {
+        const start = new Date(schedules[i].startTime);
+        if (start <= now) {
+          return i;
+        }
+      }
+      return 0;
+    }
+
+    // Start video scheduler
+    function startScheduler() {
+      if (!schedules || schedules.length === 0) {
+        showNoVideoMessage();
+        return;
+      }
+
+      currentIndex = getCurrentVideoIndex();
+      playVideoAtIndex(currentIndex);
+
+      schedulerInterval = setInterval(() => {
+        const now = new Date();
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex >= schedules.length) {
+          // Last video reached; stop switching
+          clearInterval(schedulerInterval);
+          return;
+        }
+
+        const nextStart = new Date(schedules[nextIndex].startTime);
+        if (now >= nextStart && nextIndex !== currentIndex) {
+          playVideoAtIndex(nextIndex);
+        }
+      }, 5000);
+    }
+
+    // Play video by index
+    function playVideoAtIndex(index) {
+      clearTimeout(endTimer);
+      currentIndex = index;
+      const video = schedules[index];
+      const videoId = extractVideoId(video.youtubeUrl);
+
+      if (!videoId) return;
+
+      const start = new Date(video.startTime);
+      const end = new Date(start.getTime() + video.durationMinutes * 60 * 1000);
+      const now = new Date();
+
+      // Skip if video’s time already passed
+      if (now >= end) {
+        showNoVideoMessage();
+        return;
+      }
+
+      // Load video and unmute
+      player.loadVideoById(videoId);
+      player.unMute();
+      document.getElementById("videoContainer").style.display = "flex";
+      document.getElementById("noVideoMessage").style.display = "none";
+      console.log("▶ Now playing:", video.title);
+
+      // Stop after duration, then show idle screen or play next
+      const timeUntilEnd = end - now;
+      endTimer = setTimeout(() => {
+        const nextIndex = currentIndex + 1;
+        const nextVideo = schedules[nextIndex];
+        if (nextVideo) {
+          const nextStart = new Date(nextVideo.startTime);
+          const gap = nextStart - new Date();
+          if (gap > 0) {
+            stopPlaybackAndShowIdle();
+          } else {
+            playVideoAtIndex(nextIndex);
+          }
+        } else {
+          stopPlaybackAndShowIdle();
+        }
+      }, timeUntilEnd);
+    }
+
+    // Stop playback and show idle message
+    function stopPlaybackAndShowIdle() {
+      player.stopVideo();
+      showNoVideoMessage();
+    }
+
+    // Show idle message (no video currently playing)
+    function showNoVideoMessage() {
+      document.getElementById("videoContainer").style.display = "none";
+      document.getElementById("noVideoMessage").style.display = "flex";
+    }
+  </script>
+
+  <!-- Handle fullscreen and settings button -->
+  <script>
+    const container = document.getElementById("videoContainer");
+    const settingsBtn = document.getElementById("settingsBtn");
+
+    window.onload = () => {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      }
+    };
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        container.classList.add("minimized");
+        settingsBtn.style.display = "block";
+      }
+    });
+  </script>
 </body>
 </html>
