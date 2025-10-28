@@ -18,10 +18,8 @@
 
   <button id="settingsBtn" onclick="window.location.href='/schedule'">⚙ Settings</button>
 
-  <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 
-  <!-- Pass schedule data -->
   <script th:inline="javascript">
     const schedules = /*[[${schedules}]]*/ [];
   </script>
@@ -32,7 +30,6 @@
     let schedulerInterval;
     let endTimer = null;
 
-    // Extract YouTube video ID from various URL formats
     function extractVideoId(url) {
       try {
         if (url.includes("embed/")) return url.split("embed/")[1].split("?")[0];
@@ -44,7 +41,6 @@
       return null;
     }
 
-    // Initialize YouTube Player
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
         height: '100%',
@@ -63,7 +59,6 @@
       });
     }
 
-    // Find the current video based on the system time
     function getCurrentVideoIndex() {
       const now = new Date();
       for (let i = schedules.length - 1; i >= 0; i--) {
@@ -75,7 +70,6 @@
       return 0;
     }
 
-    // Start video scheduler
     function startScheduler() {
       if (!schedules || schedules.length === 0) {
         showNoVideoMessage();
@@ -90,7 +84,6 @@
         const nextIndex = currentIndex + 1;
 
         if (nextIndex >= schedules.length) {
-          // Last video reached; stop switching
           clearInterval(schedulerInterval);
           return;
         }
@@ -102,7 +95,6 @@
       }, 5000);
     }
 
-    // Play video by index
     function playVideoAtIndex(index) {
       clearTimeout(endTimer);
       currentIndex = index;
@@ -115,20 +107,19 @@
       const end = new Date(start.getTime() + video.durationMinutes * 60 * 1000);
       const now = new Date();
 
-      // Skip if video’s time already passed
       if (now >= end) {
         showNoVideoMessage();
         return;
       }
 
-      // Load video and unmute
-      player.loadVideoById(videoId);
+      const offsetSeconds = Math.max(0, Math.floor((now - start) / 1000));
+      player.loadVideoById({ videoId, startSeconds: offsetSeconds });
       player.unMute();
+
       document.getElementById("videoContainer").style.display = "flex";
       document.getElementById("noVideoMessage").style.display = "none";
       console.log("▶ Now playing:", video.title);
 
-      // Stop after duration, then show idle screen or play next
       const timeUntilEnd = end - now;
       endTimer = setTimeout(() => {
         const nextIndex = currentIndex + 1;
@@ -147,20 +138,17 @@
       }, timeUntilEnd);
     }
 
-    // Stop playback and show idle message
     function stopPlaybackAndShowIdle() {
       player.stopVideo();
       showNoVideoMessage();
     }
 
-    // Show idle message (no video currently playing)
     function showNoVideoMessage() {
       document.getElementById("videoContainer").style.display = "none";
       document.getElementById("noVideoMessage").style.display = "flex";
     }
   </script>
 
-  <!-- Handle fullscreen and settings button -->
   <script>
     const container = document.getElementById("videoContainer");
     const settingsBtn = document.getElementById("settingsBtn");
