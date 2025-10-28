@@ -24,11 +24,21 @@ public class ScheduleRepository {
         """);
     }
 
+    // Get all schedules (sorted by start time)
     public List<VideoSchedule> findAll() {
-        return jdbcTemplate.query("SELECT * FROM video_schedule ORDER BY start_time",
-                new BeanPropertyRowMapper<>(VideoSchedule.class));
+        return jdbcTemplate.query("""
+            SELECT * FROM video_schedule ORDER BY start_time
+        """, new BeanPropertyRowMapper<>(VideoSchedule.class));
     }
 
+    // Get a single schedule by ID (for editing)
+    public VideoSchedule findById(Long id) {
+        return jdbcTemplate.queryForObject("""
+            SELECT * FROM video_schedule WHERE id=?
+        """, new BeanPropertyRowMapper<>(VideoSchedule.class), id);
+    }
+
+    // Save or update a schedule
     public void save(VideoSchedule schedule) {
         if (schedule.getId() == null) {
             jdbcTemplate.update("""
@@ -37,11 +47,15 @@ public class ScheduleRepository {
             """, schedule.getTitle(), schedule.getYoutubeUrl(), schedule.getStartTime(), schedule.getDurationMinutes());
         } else {
             jdbcTemplate.update("""
-                UPDATE video_schedule SET title=?, youtube_url=?, start_time=?, duration_minutes=? WHERE id=?
-            """, schedule.getTitle(), schedule.getYoutubeUrl(), schedule.getStartTime(), schedule.getDurationMinutes(), schedule.getId());
+                UPDATE video_schedule
+                SET title=?, youtube_url=?, start_time=?, duration_minutes=?
+                WHERE id=?
+            """, schedule.getTitle(), schedule.getYoutubeUrl(), schedule.getStartTime(),
+                    schedule.getDurationMinutes(), schedule.getId());
         }
     }
 
+    // Delete schedule by ID
     public void delete(Long id) {
         jdbcTemplate.update("DELETE FROM video_schedule WHERE id=?", id);
     }

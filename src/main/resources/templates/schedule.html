@@ -5,6 +5,7 @@
     <title>Weekly Schedule - YouTube Scheduler</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+
 <body>
 <header>
     <h2>Weekly Video Schedule</h2>
@@ -12,6 +13,7 @@
 </header>
 
 <section>
+    <h3>All Scheduled Videos</h3>
     <table>
         <thead>
         <tr>
@@ -25,11 +27,15 @@
         <tbody>
         <tr th:each="schedule : ${schedules}">
             <td th:text="${schedule.title}"></td>
-            <td th:text="${schedule.youtubeUrl}"></td>
+            <td>
+                <a th:href="${schedule.youtubeUrl}" target="_blank" th:text="${schedule.youtubeUrl}"></a>
+            </td>
             <td th:text="${schedule.startTime}"></td>
             <td th:text="${schedule.durationMinutes}"></td>
             <td>
-                <a th:href="@{'/schedule/delete/' + ${schedule.id}}">Delete</a>
+                <a th:href="@{'/schedule/edit/' + ${schedule.id}}">Edit</a>
+                <a th:href="@{'/schedule/delete/' + ${schedule.id}}" 
+                   onclick="return confirm('Are you sure you want to delete this schedule?')">Delete</a>
             </td>
         </tr>
         </tbody>
@@ -37,13 +43,19 @@
 </section>
 
 <section class="form-section">
-    <h3>Add / Update Video Schedule</h3>
+    <h3 th:text="${isEdit} ? 'Edit Video Schedule' : 'Add New Video Schedule'"></h3>
+
     <form th:action="@{/schedule/save}" method="post" th:object="${newSchedule}">
-        <input type="text" placeholder="Title" th:field="*{title}" required>
-        <input type="text" placeholder="YouTube URL" th:field="*{youtubeUrl}" required>
+        <!-- Hidden ID for edit -->
+        <input type="hidden" th:field="*{id}">
+
+        <input type="text" th:field="*{title}" placeholder="Video Title" required>
+        <input type="text" th:field="*{youtubeUrl}" placeholder="YouTube URL" required>
         <input type="datetime-local" th:field="*{startTime}" required>
-        <input type="number" placeholder="Duration (min)" th:field="*{durationMinutes}" required>
-        <button type="submit">Save</button>
+        <input type="number" th:field="*{durationMinutes}" placeholder="Duration (min)" min="1" required>
+
+        <button type="submit" th:text="${isEdit} ? 'Update' : 'Add'"></button>
+        <a th:if="${isEdit}" th:href="@{/schedule}" class="cancel-btn">Cancel</a>
     </form>
 </section>
 </body>
