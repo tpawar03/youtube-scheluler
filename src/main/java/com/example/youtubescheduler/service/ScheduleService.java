@@ -3,6 +3,7 @@ package com.example.youtubescheduler.service;
 import com.example.youtubescheduler.model.VideoSchedule;
 import com.example.youtubescheduler.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -24,8 +25,16 @@ public class ScheduleService {
         return repo.findById(id);
     }
 
-    // Save new or updated schedule
+    // Save new or updated schedule with conflict validation
     public void save(VideoSchedule schedule) {
+        if (schedule.getStartTime() == null || schedule.getStartTime().isBlank()) {
+            throw new IllegalArgumentException("Please provide a valid start time.");
+        }
+
+        if (repo.hasConflict(schedule)) {
+            throw new IllegalArgumentException("⚠️ Scheduling conflict: another video is already scheduled during this period.");
+        }
+
         repo.save(schedule);
     }
 
