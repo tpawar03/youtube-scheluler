@@ -1,4 +1,4 @@
-# Use a base image with both JDK and Maven preinstalled
+# --- Build stage ---
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
@@ -7,8 +7,9 @@ COPY . .
 # Build the application without running tests
 RUN mvn clean package -DskipTests
 
-# Use a slim runtime image for smaller size
-FROM openjdk:17-jdk-slim
+# --- Runtime stage ---
+FROM eclipse-temurin:17-jdk-jammy AS runtime
+# or for even smaller size: eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
